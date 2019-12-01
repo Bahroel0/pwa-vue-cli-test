@@ -1,5 +1,8 @@
 <template>
   <v-app>
+    <v-btn block @click="install()" v-if="isInstall">
+      Install to homescreen
+    </v-btn>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img
@@ -50,7 +53,30 @@ export default {
   },
 
   data: () => ({
-    //
-  })
+    isInstall: false,
+    installer: undefined
+  }),
+  created() {
+    let installPrompt;
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      installPrompt = e;
+      this.isInstall = true;
+    });
+    this.installer = () => {
+      this.isInstall = false;
+      installPrompt.prompt();
+      installPrompt.userChoice.then(res => {
+        if (res.outcome === "accepted") {
+          // eslint-disable-next-line
+          console.log("user accepted");
+        } else {
+          // eslint-disable-next-line
+          console.log("User denied");
+        }
+        installPrompt = null;
+      });
+    };
+  }
 };
 </script>
